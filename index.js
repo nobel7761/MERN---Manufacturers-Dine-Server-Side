@@ -28,6 +28,7 @@ async function run() {
     await client.connect();
     const toolsCollection = client.db("manufacturers-dine").collection("tools");
     const ordersCollection = client.db("manufacturers-dine").collection("orders");
+    const reviewsCollection = client.db("manufacturers-dine").collection("reviews");
 
     //getting all the tools
     app.get("/tools", async (req, res) => {
@@ -50,6 +51,15 @@ async function run() {
       const newOrder = req.body;
       const result = await ordersCollection.insertOne(newOrder);
       res.send(result);
+    })
+
+    //getting all reviews
+    app.get('/reviews', async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+
     })
 
 
