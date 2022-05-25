@@ -66,13 +66,6 @@ async function run() {
       res.send(result);
     });
 
-    /* //create users
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await userCollection.insertOne(user);
-      res.send(result);
-    }); */
-
     //updating user profile
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
