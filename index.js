@@ -66,15 +66,15 @@ async function run() {
       res.send(result);
     });
 
-    //create users
+    /* //create users
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await userCollection.insertOne(user);
       res.send(result);
-    });
+    }); */
 
     //updating user profile
-    app.put("/userprofile/:email", async (req, res) => {
+    app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const updateInfo = req.body;
       const filter = { email: email };
