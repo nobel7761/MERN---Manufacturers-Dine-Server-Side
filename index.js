@@ -94,14 +94,6 @@ async function run() {
       );
       res.send(result);
     });
-
-    //getting single user by the email!
-    app.get("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { email: email };
-      const product = await userCollection.findOne(query);
-      res.send(product);
-    });
   } finally {
   }
 }
