@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("Server Running...");
+  console.log("Server Running on PORT....");
 });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.65d9i.mongodb.net/?retryWrites=true&w=majority`;
