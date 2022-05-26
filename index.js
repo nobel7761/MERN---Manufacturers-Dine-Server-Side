@@ -49,6 +49,18 @@ async function run() {
     const reviewsCollection = client.db("manufacturers-dine").collection("reviews");
     const userCollection = client.db("manufacturers-dine").collection("users");
 
+
+
+
+
+
+
+
+
+
+    /* ===========================================
+               POST METHODS
+   ==============================================*/
     //getting all the tools
     app.get("/tools", async (req, res) => {
       const query = {};
