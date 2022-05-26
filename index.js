@@ -8,7 +8,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("manufacturers");
@@ -285,7 +292,7 @@ async function run() {
     /*=================================================== 
     payment
     =====================================================*/
-    app.get('/order', async (req, res) => {
+    /* app.get('/order', async (req, res) => {
       const query = {}
       const result = await BookingCollection.find(query).toArray()
       res.send(result)
@@ -296,7 +303,7 @@ async function run() {
       const query = { userEmail: email }
       const result = await BookingCollection.find(query).toArray()
       res.send(result)
-    })
+    }) */
 
     //payment
     app.get('/pay/:id', async (req, res) => {
@@ -310,7 +317,7 @@ async function run() {
 
 
 
-    app.put('/order/:id', async (req, res) => {
+    /* app.put('/order/:id', async (req, res) => {
       const payment = req.body
       const id = req.params.id
       const filter = { _id: ObjectId(id) }
@@ -332,7 +339,7 @@ async function run() {
       const query = { _id: ObjectId(id) }
       const result = await BookingCollection.deleteOne(query);
       res.send(result)
-    })
+    }) */
 
 
 
