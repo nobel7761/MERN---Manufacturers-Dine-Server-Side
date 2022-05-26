@@ -19,7 +19,7 @@ app.listen(port, () => {
 });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.65d9i.mongodb.net/?retryWrites=true&w=majority`;
-
+console.log(process.env.DB_USER, process.env.DB_PASSWORD);
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -45,12 +45,8 @@ async function run() {
   try {
     await client.connect();
     const toolsCollection = client.db("manufacturers-dine").collection("tools");
-    const ordersCollection = client
-      .db("manufacturers-dine")
-      .collection("orders");
-    const reviewsCollection = client
-      .db("manufacturers-dine")
-      .collection("reviews");
+    const ordersCollection = client.db("manufacturers-dine").collection("orders");
+    const reviewsCollection = client.db("manufacturers-dine").collection("reviews");
     const userCollection = client.db("manufacturers-dine").collection("users");
 
     //getting all the tools
@@ -69,13 +65,6 @@ async function run() {
       res.send(product);
     });
 
-    //placing an order
-    app.post("/order-placing", async (req, res) => {
-      const newOrder = req.body;
-      const result = await ordersCollection.insertOne(newOrder);
-      res.send(result);
-    });
-
     //getting all reviews
     app.get("/reviews", async (req, res) => {
       const query = {};
@@ -88,48 +77,6 @@ async function run() {
     app.get("/users", verifyJWT, async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
-    });
-
-    //updating user profile
-    app.put("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const updateInfo = req.body;
-      const filter = { email: email };
-      const options = { upsert: true };
-      const updatedDoc = {
-        $set: updateInfo,
-      };
-      const result = await userCollection.updateOne(
-        filter,
-        updatedDoc,
-        options
-      );
-
-      const token = jwt.sign(
-        { email: email },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "1h" }
-      );
-      res.send({ result, token });
-    });
-    //updating user as admin
-    app.put("/user/admin/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
-      const requester = req.decoded.email;
-      const requesterAccount = await userCollection.findOne({
-        email: requester,
-      });
-      if (requesterAccount.role === "admin") {
-        const filter = { email: email };
-        const updatedDoc = {
-          $set: { role: "admin" },
-        };
-        const result = await userCollection.updateOne(filter, updatedDoc);
-
-        res.send(result);
-      } else {
-        res.status(403).send({ message: "forbidden" });
-      }
     });
 
     app.get("/admin/:email", async (req, res) => {
@@ -161,13 +108,6 @@ async function run() {
       }
     });
 
-    //add a review
-    app.post("/review", async (req, res) => {
-      const review = req.body;
-      const result = await reviewsCollection.insertOne(review);
-      res.send(result);
-    });
-
     //getting all orders
     app.get("/orders", async (req, res) => {
       const query = {};
@@ -184,12 +124,106 @@ async function run() {
       res.send(order);
     });
 
+
+
+
+
+
+
+
+
+
+
+
+    /* ===========================================
+                POST METHODS
+    ==============================================*/
+
+
+    //add a review
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
     //add new tool
     app.post("/tool", async (req, res) => {
       const tool = req.body;
       const result = await toolsCollection.insertOne(tool);
       res.send(result);
     });
+
+    //add an order
+    app.post("/order-placing", async (req, res) => {
+      const newOrder = req.body;
+      const result = await ordersCollection.insertOne(newOrder);
+      res.send(result);
+    });
+
+
+
+
+    /* ===========================================
+                PUT METHODS
+    ==============================================*/
+
+
+
+
+    //updating user profile
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const updateInfo = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: updateInfo,
+      };
+      const result = await userCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+
+      const token = jwt.sign(
+        { email: email },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "1h" }
+      );
+      res.send({ result, token });
+    });
+
+    //updating user as admin
+    app.put("/user/admin/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
+        const filter = { email: email };
+        const updatedDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await userCollection.updateOne(filter, updatedDoc);
+
+        res.send(result);
+      } else {
+        res.status(403).send({ message: "forbidden" });
+      }
+    });
+
+
+
+
+
+    /* ===========================================
+                DELETE METHODS
+    ==============================================*/
+
+
+
 
     //remove single tool
     app.delete("/tool/:id", async (req, res) => {
@@ -198,6 +232,25 @@ async function run() {
       const result = await toolsCollection.deleteOne(query);
       res.send(result);
     });
+
+    app.delete("/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+
+
+
+
+
+
+
+
+
+
   } finally {
   }
 }
