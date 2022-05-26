@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
@@ -25,35 +25,20 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-
-
-
-
-
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send({ message: "UnAuthorized Access" });
   }
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
     if (err) {
-      return res.status(403).send({ message: "Forbidden Access" })
+      return res.status(403).send({ message: "Forbidden Access" });
     }
     req.decoded = decoded;
     next();
-  })
+  });
 }
-
-
-
-
-
-
-
-
-
-
 
 async function run() {
   try {
@@ -99,10 +84,10 @@ async function run() {
     });
 
     //getting all users
-    app.get('/users', verifyJWT, async (req, res) => {
-      const users = await userCollection.find().toArray()
-      res.send(users)
-    })
+    app.get("/users", verifyJWT, async (req, res) => {
+      const users = await userCollection.find().toArray();
+      res.send(users);
+    });
 
     //updating user profile
     app.put("/user/:email", async (req, res) => {
@@ -111,7 +96,7 @@ async function run() {
       const filter = { email: email };
       const options = { upsert: true };
       const updatedDoc = {
-        $set: updateInfo
+        $set: updateInfo,
       };
       const result = await userCollection.updateOne(
         filter,
@@ -119,39 +104,39 @@ async function run() {
         options
       );
 
-      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+      const token = jwt.sign(
+        { email: email },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "1h" }
+      );
       res.send({ result, token });
     });
     //updating user as admin
     app.put("/user/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
       const requester = req.decoded.email;
-      const requesterAccount = await userCollection.findOne({ email: requester })
-      if (requesterAccount.role === 'admin') {
+      const requesterAccount = await userCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
         const filter = { email: email };
         const updatedDoc = {
-          $set: { role: 'admin' }
+          $set: { role: "admin" },
         };
-        const result = await userCollection.updateOne(
-          filter,
-          updatedDoc
-        );
+        const result = await userCollection.updateOne(filter, updatedDoc);
 
         res.send(result);
+      } else {
+        res.status(403).send({ message: "forbidden" });
       }
-      else {
-        res.status(403).send({ message: 'forbidden' })
-      }
-
     });
 
-
-    app.get('/admin/:email', async (req, res) => {
+    app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
-      const isAdmin = user.role === 'admin'
-      res.send({ admin: isAdmin })
-    })
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
 
     //getting single user by the email!
     app.get("/user/:email", async (req, res) => {
@@ -160,7 +145,6 @@ async function run() {
       const product = await userCollection.findOne(query);
       res.send(product);
     });
-
 
     //getting my orders by email
     app.get("/myOrders", verifyJWT, async (req, res) => {
@@ -171,12 +155,10 @@ async function run() {
         const cursor = ordersCollection.find(query);
         const orders = await cursor.toArray();
         res.send(orders);
-      }
-      else {
-        res.status(403).send({ message: "Forbidden Access" })
+      } else {
+        res.status(403).send({ message: "Forbidden Access" });
       }
     });
-
 
     //add a review
     app.post("/review", async (req, res) => {
@@ -184,8 +166,6 @@ async function run() {
       const result = await reviewsCollection.insertOne(review);
       res.send(result);
     });
-
-
 
     //getting all orders
     app.get("/orders", async (req, res) => {
@@ -195,6 +175,13 @@ async function run() {
       res.send(orders);
     });
 
+    //getting single order using id
+    app.get("/order/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const order = await ordersCollection.findOne(query);
+      res.send(order);
+    });
 
     //add new tool
     app.post("/tool", async (req, res) => {
@@ -210,9 +197,6 @@ async function run() {
       const result = await toolsCollection.deleteOne(query);
       res.send(result);
     });
-
-
-
   } finally {
   }
 }
