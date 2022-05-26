@@ -282,6 +282,58 @@ async function run() {
 
 
 
+    /*=================================================== 
+    payment
+    =====================================================*/
+    app.get('/order', async (req, res) => {
+      const query = {}
+      const result = await BookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/order', async (req, res) => {
+      const email = req.query.email
+      const query = { userEmail: email }
+      const result = await BookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/pay/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.findOne(query);
+      res.send(result)
+    })
+
+
+
+
+
+    app.put('/order/:id', async (req, res) => {
+      const payment = req.body
+      const id = req.params.id
+      const filter = { _id: ObjectId(id) }
+      const options = { upsert: true };
+
+      const updateDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.TransactionID
+        }
+      }
+      const result = await BookingCollection.updateOne(filter, updateDoc, options);
+
+      res.send(result)
+    })
+
+    app.delete('/order/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: ObjectId(id) }
+      const result = await BookingCollection.deleteOne(query);
+      res.send(result)
+    })
+
+
 
 
   } finally {
