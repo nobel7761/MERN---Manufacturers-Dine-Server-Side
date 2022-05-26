@@ -194,6 +194,27 @@ async function run() {
       res.send({ result, token });
     });
 
+
+    //update order shipment condition
+    app.put("/shipmentCondition/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateInfo = req.body;
+      const filter = { email: id };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: updateInfo,
+      };
+      const result = await ordersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send({ result, token });
+    });
+
+
+
+
     //updating user as admin
     app.put("/user/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
