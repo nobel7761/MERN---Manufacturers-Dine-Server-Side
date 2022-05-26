@@ -195,11 +195,11 @@ async function run() {
     });
 
 
-    //update order shipment condition
+    //update order shipment condition to shipped
     app.put("/shipmentCondition/:id", async (req, res) => {
       const id = req.params.id;
       const updateInfo = req.body;
-      const filter = { _id: id };
+      const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updatedDoc = {
         $set: updateInfo,
